@@ -54,19 +54,34 @@ SELECT LastName, Title FROM Employees
 WHERE LastName LIKE 'B%' OR LastName LIKE 'L%'
 
 #15.  Znajdź nazwy kategorii, które w opisie zawierają przecinek
+SELECT CategoryName, Description FROM Categories
+WHERE Description LIKE '%,%'
 
 #16.  Znajdź klientów, którzy w swojej nazwie mają w którymś miejscu słowo “Store”
+SELECT CustomerID, CompanyName FROM Customers
+WHERE CompanyName LIKE '%Store%'
 
 #17.  Szukamy informacji o produktach o cenach mniejszych niż 10 lub większych niż 20
+SELECT * FROM Products
+WHERE UnitPrice NOT BETWEEN 10 AND 20
 
 #18.  Napisz instrukcję select tak aby wybrać numer zlecenia, datę zamówienia, numer klienta dla
 #wszystkich niezrealizowanych jeszcze zleceń, dla których krajem odbiorcy jest Argentyna
+SELECT OrderID, OrderDate, CustomerID, ShipCountry, ShippedDate FROM Orders
+WHERE (ShipCountry = 'Argentina') AND ((ShippedDate is NULL) OR (ShippedDate > CURDATE()))
 
 #19.  Wybierz nazwy i kraje wszystkich klientów, wyniki posortuj według kraju, w ramach danego kraju
 #nazwy firm posortuj alfabetycznie
+SELECT CompanyName, Country FROM Customers
+ORDER BY Country, CompanyName
 
 #20.  Wybierz informację o produktach (grupa, nazwa, cena), produkty posortuj wg grup a w grupach
 #malejąco wg ceny
+SELECT ProductID, ProductName, UnitPrice FROM Products
+ORDER BY UnitPrice DESC
 
 #21.  Wybierz nazwy i kraje wszystkich klientów mających siedziby w Japonii (Japan) lub we Włoszech
 #(Italy), wyniki posortuj według kraju, w ramach danego kraju nazwy firm posortuj alfabetycznie
+SELECT CompanyName, Country FROM Customers
+WHERE Country IN ('Japan', 'Italy')
+ORDER BY Country, CompanyName
