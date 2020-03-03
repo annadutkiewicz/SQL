@@ -38,26 +38,65 @@ WHERE OrderDate = '1994-08-04'
 
 #8. Wybierz nazwy i ceny produktów o cenie jednostkowej pomiędzy 20.00 a 30.00, dla każdego produktu podaj
 #dane adresowe dostawcy, interesują nas tylko produkty z kategorii Meat/Poultry.
-
+SELECT ProductName, UnitPrice, Categories.CategoryName FROM Products
+JOIN Suppliers ON Products.SupplierID = Suppliers.SupplierID
+JOIN Categories ON Products.ProductID = Categories.CategoryID
+WHERE (UnitPrice BETWEEN 20 AND 30)
+AND (CategoryName = 'Meat/Poultry')
 
 #9. Wybierz nazwy i ceny produktów z kategorii Confections dla każdego produktu podaj nazwę dostawcy.
+SELECT ProductName, UnitPrice, Suppliers.CompanyName, Categories.CategoryName FROM Products
+JOIN Suppliers ON Products.SupplierID = Suppliers.SupplierID
+JOIN Categories ON Products.ProductID = Categories.CategoryID
+WHERE Categories.CategoryName = 'Confections'
 
 #10. Wybierz nazwy i numery telefonów klientów, którym w 1997 roku przesyłki dostarczała firma United
 #Package.
+SELECT DISTINCT Customers.CompanyName, Customers.Phone, Shippers.CompanyName, Orders.OrderDate FROM Customers
+JOIN Orders ON Customers.CustomerID = Orders.CustomerID
+JOIN Shippers ON Shippers.ShipperID = Orders.ShipVia
+WHERE YEAR(Orders.OrderDate) = 1994 AND Shippers.CompanyName LIKE 'United Package'
 
 #11. Wybierz nazwy i numery telefonów klientów, którzy kupowali produkty z kategorii Confections.
+SELECT DISTINCT CompanyName, Phone, Categories.CategoryName FROM Customers
+JOIN Orders ON Customers.CustomerID = Orders.CustomerID
+JOIN `Order Details` ON Orders.OrderID = `Order Details`.OrderID
+JOIN Products ON Products.ProductID = `Order Details`.ProductID
+JOIN Categories ON Categories.CategoryID = Products.CategoryID
+WHERE CategoryName = 'Confections'
 
-#12. Napisz polecenie, które wyświetla listę wszystkich kupujących te same produkty. ???
+#12. Napisz polecenie, które pokazuje pary pracowników zajmujących to samo stanowisko
+SELECT a.LastName, a.Title, b.Title, b.LastName FROM Employees AS a
+JOIN Employees AS b
+ON a.Title = b.Title
+WHERE a.EmployeeID < b.EmployeeID
 
-#13. Napisz polecenie, które pokazuje pary pracowników zajmujących to samo stanowisko
+#13. Napisz polecenie, które wyświetla pracowników oraz ich podwładnych
+SELECT a.EmployeeID, a.FirstName, a.LastName, a.ReportsTo, b.EmployeeID, b.FirstName, b.LastName, b.ReportsTo
+FROM Employees AS a
+JOIN Employees AS b ON b.ReportsTo = a.EmployeeID
+ORDER BY a.LastName
 
-#14. Napisz polecenie, które wyświetla pracowników oraz ich podwładnych
+#14. Napisz polecenie, które wyświetla pracowników, którzy nie mają podwładnych
+SELECT a.EmployeeID, a.FirstName, a.LastName, a.ReportsTo FROM Employees AS a
+LEFT OUTER JOIN Employees AS b ON b.ReportsTo = a.EmployeeID
+WHERE b.EmployeeID is NULL
+ORDER BY a.LastName
 
-#15. Napisz polecenie, które wyświetla pracowników, którzy nie mają podwładnych
+#15. Dla każdej kategorii produktu, podaj łączną liczbę zamówionych jednostek
+SELECT Categories.CategoryName, SUM(Products.UnitsOnOrder) FROM Categories
+JOIN Products ON Categories.CategoryID = Products.CategoryID
+GROUP BY Categories.CategoryName
 
-#16. Dla każdej kategorii produktu, podaj łączną liczbę zamówionych jednostek
+#16. Dla każdego zamówienia podaj łączną liczbę zamówionych jednostek
+SELECT `Order Details`.OrderID, SUM(quantity) AS Sum_Quantity FROM `Order Details`
+JOIN Products ON `Order Details`.ProductID = Products.ProductID
+GROUP BY `Order Details`.OrderID
+ORDER BY 2 DESC
 
-#17. Dla każdego zamówienia podaj łączną liczbę zamówionych jednostek
-
-#18. Zmodyfikuj poprzedni przykład, aby pokazać tylko takie zamówienia, dla których łączna liczba jednostek jest
+#17. Zmodyfikuj poprzedni przykład, aby pokazać tylko takie zamówienia, dla których łączna liczba jednostek jest
 #większa niż 250
+SELECT `Order Details`.OrderID, SUM(quantity) AS Sum_Quantity FROM `Order Details`
+JOIN Products ON `Order Details`.ProductID = Products.ProductID
+GROUP BY `Order Details`.OrderID HAVING (SUM(quantity) > 250)
+ORDER BY 2 DESC
