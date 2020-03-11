@@ -1,2 +1,4 @@
-# SQL
-REPO_IN_PROGRESS...
+## SQL
+***SQL_basics***
+
+Contains basic operations in MySQL
