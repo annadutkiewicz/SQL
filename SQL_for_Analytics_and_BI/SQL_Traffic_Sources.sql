@@ -1,6 +1,4 @@
-/* Let's find what are our top traffic sources by seeing a breakdown
-by UTM source, campaign and referring domain*/
-
+#1. FINDING TOP TRAFFIC SOURCES
 SELECT
 	utm_source,
     utm_campaign,
@@ -14,11 +12,7 @@ GROUP BY
     http_referer
 ORDER BY sessions DESC
 
-/*Result: We should drill deeper into gsearch nonbrand campaign traffic
-to explore potential optimization as it looks like gsearch nonbrand is
-major traffic source. Based on what is paid for clicks, at least 4%
-CVR is needed*/
-
+#2.  TRAFFIC CONVERSION RATES
 SELECT
 	#website_sessions.utm_source,
     #website_sessions.utm_campaign,
@@ -36,11 +30,7 @@ GROUP BY
 	utm_source,
     utm_campaign
 
-/*Result: We received 0.0288 conversion rate, i.e. we are below 4% threshold.
-The impact of bid reductions should be monitored and performance trending by device type
-should be analyzed to refine bidding strategy. Bids were now reduced for gsearch nonbrand
-so let's see how it looks after Apr-15th*/
-
+#3. TRAFFIC SOURCE TRENDING
 SELECT
 	#YEAR(created_at) as year,
 	#WEEK(created_at) as week,
@@ -55,10 +45,7 @@ GROUP BY
 	YEAR(created_at),
 	WEEK(created_at)
     
-/*Result: Non brand traffic seem to be sensitive to bid changes and volume is down,
-so we are goint to monitor volume traffic and think about how to make the campaigns
-more efficient to increase volume again*/
-    
+#4. TRAFFIC SOURCE BID OPTIMIZATION    
 SELECT
 	website_sessions.device_type,
     COUNT(DISTINCT website_sessions.website_session_id) AS sessions,
@@ -74,10 +61,7 @@ WHERE
 GROUP BY
 	website_sessions.device_type
 
-/*Result: For desktop versions, conversion rate equals to 3.7%, for mobile traffic
-it is less than 1%. We are going to increase bids for desktop and analyze if bid changes
-make an impact*/
-
+#5. TRAFFIC SOURCE SEGMENT TRENDING
 SELECT
     MIN(DATE(created_at)) AS week_start_date,
 	COUNT(DISTINCT CASE WHEN device_type = 'desktop' THEN website_session_id ELSE NULL END) AS dtop_sessions,
@@ -90,5 +74,3 @@ WHERE
 GROUP BY
 	YEAR(created_at),
     WEEK(created_at)
-    
-/*Result: 
