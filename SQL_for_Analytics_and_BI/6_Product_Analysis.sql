@@ -418,11 +418,7 @@ ORDER BY repeat_sessions DESC
 
 #11. NEW VS REPEAT PERFORMANCE
 SELECT
-	CASE
-		WHEN website_sessions.is_repeat_session = 0 THEN '0'
-        WHEN website_sessions.is_repeat_session = 1 THEN '1'
-        ELSE 'uh oh...check logic'
-	END AS is_repeat_session,
+	website_sessions.is_repeat_session,
     COUNT(DISTINCT website_sessions.website_session_id) AS sessions,
     #COUNT(DISTINCT orders.order_id) AS orders,
     COUNT(DISTINCT orders.order_id) / COUNT(DISTINCT website_sessions.website_session_id) AS conv_rate,

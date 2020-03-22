@@ -281,3 +281,32 @@ GROUP BY 1;
 (Sep 10 Nov 10), in terms of revenue per billing page session , and then pull the number of billing page sessions
 for the past month to understand monthly impact
 */
+SELECT
+	billing_version_seen,
+    COUNT(DISTINCT website_session_id) AS sessions,
+    SUM(price_usd) / COUNT(DISTINCT website_session_id) AS revenue_per_billing_page_seen
+FROM (
+SELECT
+	website_pageviews.website_session_id,
+    website_pageviews.pageview_url AS billing_version_seen,
+    orders.order_id,
+    orders.price_usd
+FROM website_pageviews
+	LEFT JOIN orders
+		ON website_pageviews.website_session_id = orders.website_session_id
+WHERE website_pageviews.created_at BETWEEN '2012-09-10' AND '2012-11-10'
+	AND website_pageviews.pageview_url IN ('/billing', '/billing-2')
+) AS billing_pageviews_and_order_data
+GROUP BY 1;
+# $22.83 revenue per billing page seen for old version
+# $31.34 revenue per billing page seen for old version
+# LIFT: $8.51 per billing page view
+
+SELECT
+	COUNT(website_session_id) AS billing_sessions_past_month
+FROM website_pageviews
+WHERE pageview_url IN ('/billing', '/billing-2')
+	AND created_at BETWEEN '2012-10-27' AND '2012-11-27'
+# 1193 billing sessions past month
+# LIFT: $8.51 per billing session
+# VALUE OF BILLING TEST: $10,150 over the past month
