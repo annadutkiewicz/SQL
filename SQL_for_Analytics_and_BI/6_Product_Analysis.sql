@@ -387,4 +387,49 @@ FROM min_first_session
 
 ###################################################################################################################
 
-#10.
+#10. NEW VS REPEAT CHANNEL PATTERNS
+SELECT DISTINCT
+	utm_source,
+    utm_campaign,
+    http_referer
+FROM website_sessions
+WHERE created_at BETWEEN '2014-01-01' AND '2014-11-05'
+GROUP BY 1,2,3
+;
+
+SELECT
+	CASE
+		WHEN utm_source IS NULL AND http_referer IS NULL THEN 'direct_type_in'
+        WHEN utm_source IS NULL AND http_referer IS NOT NULL THEN 'organic_search'
+        WHEN utm_campaign = 'brand' AND http_referer IS NOT NULL THEN 'paid_brand'
+        WHEN utm_campaign = 'nonbrand' AND http_referer IS NOT NULL THEN 'paid_nonbrand'
+        WHEN utm_source = 'socialbook' AND http_referer IS NOT NULL THEN 'paid_social'
+        ELSE 'uh oh...check logic'
+	END AS channel_group,
+    COUNT(CASE WHEN is_repeat_session = 0 THEN website_session_id ELSE NULL END) AS new_sessions,
+    COUNT(CASE WHEN is_repeat_session = 1 THEN website_session_id ELSE NULL END) AS repeat_sessions
+FROM website_sessions
+WHERE created_at BETWEEN '2014-01-01' AND '2014-11-05'
+GROUP BY 1
+ORDER BY repeat_sessions DESC
+;
+
+###################################################################################################################
+
+#11. NEW VS REPEAT PERFORMANCE
+SELECT
+	CASE
+		WHEN website_sessions.is_repeat_session = 0 THEN '0'
+        WHEN website_sessions.is_repeat_session = 1 THEN '1'
+        ELSE 'uh oh...check logic'
+	END AS is_repeat_session,
+    COUNT(DISTINCT website_sessions.website_session_id) AS sessions,
+    #COUNT(DISTINCT orders.order_id) AS orders,
+    COUNT(DISTINCT orders.order_id) / COUNT(DISTINCT website_sessions.website_session_id) AS conv_rate,
+    SUM(price_usd) / COUNT(DISTINCT website_sessions.website_session_id) AS rev_per_session
+FROM website_sessions
+	LEFT JOIN orders
+		ON website_sessions.website_session_id = orders.website_session_id
+WHERE website_sessions.created_at BETWEEN '2014-01-01' AND '2014-11-08'
+GROUP BY 1
+;
